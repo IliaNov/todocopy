@@ -1,5 +1,5 @@
 import sqlite3
-
+import datetime
 
 class dbase:
     conn = None
@@ -45,9 +45,10 @@ class task(dbase):
 
     def __init__(self, name, descr="NULL", dateterm="NULL", timeterm="NULL"):
         self.connect()
-        self.cur.execute("INSERT INTO task (name, descr, dateterm, timeterm) VALUES (?,?,?,?)",
-                         (name, descr, dateterm, timeterm))
+        self.cur.execute("INSERT INTO task (name, descr, timeset, dateterm, timeterm) VALUES (?,?,?,?,?)",
+                         (name, descr, datetime.datetime.now(), dateterm, timeterm))
         self.id = self.cur.execute("SELECT id FROM task WHERE rowid=last_insert_rowid()").fetchone()[0]
+        print(self.id)
         self.connectclose()
 
 
