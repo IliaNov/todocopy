@@ -41,6 +41,7 @@ class user(dbase):
 
 
 class task(dbase):
+
     id = 0
 
     def __init__(self, name, descr="NULL", dateterm="NULL", timeterm="NULL"):
@@ -48,15 +49,24 @@ class task(dbase):
         self.cur.execute("INSERT INTO task (name, descr, timeset, dateterm, timeterm) VALUES (?,?,?,?,?)",
                          (name, descr, datetime.datetime.now(), dateterm, timeterm))
         self.id = self.cur.execute("SELECT id FROM task WHERE rowid=last_insert_rowid()").fetchone()[0]
-        print(self.id)
         self.connectclose()
 
 
 class project(dbase):
-    def __init__(self):
-        print('project')
+
+    id = 0
+
+    def __init__(self, name, descr="NULL"):
+
+        self.connect()
+        self.cur.execute("INSERT INTO project (name, descr, timeset) VALUES (?,?,?)",
+                         (name, descr, datetime.datetime.now()))
+        self.id = self.cur.execute("SELECT id FROM project WHERE rowid=last_insert_rowid()").fetchone()[0]
+        self.connectclose()
+
 
 
 usr = user('vasya', 'vasya')
 tsk = task("novay", "opis")
+prj = project('novyi', 'opisanie proekta')
 usr.addtask(tsk)
