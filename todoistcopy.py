@@ -1,5 +1,6 @@
 import sqlite3
 import datetime
+import random
 
 class dbase:
     conn = None
@@ -36,37 +37,57 @@ class user(dbase):
 
     def addtask(self, taskobj):
         self.connect()
-        self.cur.execute("INSERT INTO usertask (userid, taskid) VALUES (?,?)", (self.id, taskobj.id))
+        self.cur.execute("INSERT INTO task (userid, name, descr, timeset, dateterm, timeterm) VALUES (?,?,?,?,?,?)",
+                         (self.id, taskobj.name, taskobj.descr, taskobj.timeset, taskobj.dateterm, taskobj.timeterm))
+        taskobj.id = self.cur.execute("SELECT id FROM task WHERE rowid=last_insert_rowid()").fetchone()[0]
+        taskobj.userid = self.id
+        self.connectclose()
+
+    def addproject(self, projectobj):
+        self.connect()
+        self.cur.execute("INSERT INTO project (userid, name, descr, timeset) VALUES (?,?,?,?)",
+                         (self.id, projectobj.name, projectobj.descr, projectobj.timeset))
+        projectobj.id = self.cur.execute("SELECT id FROM project WHERE rowid=last_insert_rowid()").fetchone()[0]
+        projectobj.userid = self.id
         self.connectclose()
 
 
 class task(dbase):
 
     id = 0
+    userid = 0
+    parentid = 0
+    projectid = 0
+    name = ''
+    descr = ''
+    timeset = datetime.datetime.now()
+    dateterm = ''
+    timeterm = ''
 
-    def __init__(self, name, descr="NULL", dateterm="NULL", timeterm="NULL"):
-        self.connect()
-        self.cur.execute("INSERT INTO task (name, descr, timeset, dateterm, timeterm) VALUES (?,?,?,?,?)",
-                         (name, descr, datetime.datetime.now(), dateterm, timeterm))
-        self.id = self.cur.execute("SELECT id FROM task WHERE rowid=last_insert_rowid()").fetchone()[0]
-        self.connectclose()
-
+    def __init__(self, name, descr="NULL", dateterm="NULL", timeterm="NULL", parentid=0, projectid=0):
+        self.parentid = parentid
+        self.projectid = projectid
+        self.name = name
+        self.descr = descr
+        self.dateterm = dateterm
+        self.timeterm = timeterm
 
 class project(dbase):
 
     id = 0
+    userid = 0
+    name = ''
+    descr = ''
+    timeset = datetime.datetime.now()
 
     def __init__(self, name, descr="NULL"):
 
-        self.connect()
-        self.cur.execute("INSERT INTO project (name, descr, timeset) VALUES (?,?,?)",
-                         (name, descr, datetime.datetime.now()))
-        self.id = self.cur.execute("SELECT id FROM project WHERE rowid=last_insert_rowid()").fetchone()[0]
-        self.connectclose()
-
+        self.name = name
+        self.descr = descr
 
 
 usr = user('vasya', 'vasya')
-tsk = task("novay", "opis")
-prj = project('novyi', 'opisanie proekta')
+tsk = task("novay" + str(random.randint(0,10000)), "opis")
+prj = project('novyi' + str(random.randint(0,10000)), 'opisanie proekta')
 usr.addtask(tsk)
+usr.addproject(prj)
