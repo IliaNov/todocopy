@@ -51,6 +51,17 @@ class user(dbase):
         projectobj.userid = self.id
         self.connectclose()
 
+    def listtask(self):
+
+        self.connect()
+
+        res = self.cur.execute("SELECT * FROM task WHERE userid = ?",(self.id,)).fetchone()
+        print(self.cur.description)
+        self.connectclose()
+
+        return res
+
+
 
 class task(dbase):
 
@@ -91,3 +102,4 @@ tsk = task("novay" + str(random.randint(0,10000)), "opis")
 prj = project('novyi' + str(random.randint(0,10000)), 'opisanie proekta')
 usr.addtask(tsk)
 usr.addproject(prj)
+usr.listtask()
